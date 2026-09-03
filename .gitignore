@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments & package managers
+venv/
+.venv/
+ENV/
+env/
+.runtime/
+.uv-cache/
+.uv-python/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor & OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Application runtime / local logs & cache
+crash.log
+.tmp/
+.autosave.lylis.json
+*.cache

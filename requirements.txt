@@ -1,0 +1,10 @@
+PyQt5>=5.15.10
+pygame>=2.6.0
+Pillow>=10.2.0
+numpy>=1.26.0
+imageio>=2.34.0
+imageio-ffmpeg>=0.5.1
+soundfile>=0.12.1
+scipy>=1.12.0
+# Optional local AI lyric transcription provider used by the Media > AI button.
+faster-whisper>=1.1.0
