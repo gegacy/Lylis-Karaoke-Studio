@@ -131,19 +131,32 @@ python main.py
 ```
 *Or double-click `run.bat` on Windows for zero-config launcher with automatic environment detection.*
 
+### 4. Build Standalone Windows Executable (.exe)
+To package the app into a standalone desktop `.exe` bundled with the custom icon and all media assets:
+```bash
+# Double-click build_exe.bat or run:
+pyinstaller LylisKaraokeStudio.spec --noconfirm --clean
+```
+The resulting executable will be created in `dist/LylisKaraokeStudio/LylisKaraokeStudio.exe`.
+
 ---
 
 ## 📂 Project Architecture
 
 ```
 Lylis-Karaoke-Studio/
-├── main.py                     # High-DPI Desktop application entry point
+├── main.py                     # High-DPI Desktop application entry point with custom app icon
 ├── run.bat                     # Windows 1-click launcher script
+├── build_icon.py               # Generates multi-resolution Windows ICO (16x16 to 256x256)
+├── build_exe.bat               # PyInstaller 1-click executable builder with custom icon
+├── LylisKaraokeStudio.spec     # PyInstaller configuration & asset packaging spec
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # Application documentation
 ├── .gitignore                  # Git ignore rules for Python & PyQt5
 │
-├── assets/                     # Media assets
+├── assets/                     # Media & application assets
+│   ├── app_icon.ico            # Multi-resolution Windows application icon
+│   ├── app_icon.png            # High-resolution 1024x1024 master icon
 │   ├── icons/                  # Modern & retro singer badges
 │   ├── sample_audio.wav        # Acoustic sample audio track
 │   └── sample_bg.jpg           # Default studio backdrop

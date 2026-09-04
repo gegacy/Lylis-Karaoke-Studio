@@ -34,11 +34,21 @@ setup_crash_logger()
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from gui.main_window import MainWindow
 from core.cache_manager import CacheManager
 
 def main():
     try:
+        # Separate Windows taskbar group and custom app icon
+        if sys.platform == 'win32':
+            try:
+                import ctypes
+                myappid = 'gegacy.lylis.karaokestudio.1.0'
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+            except Exception:
+                pass
+
         # Auto clean stale cache files on startup
         try:
             CacheManager.auto_clean_on_start()
@@ -57,6 +67,13 @@ def main():
         app = QApplication(sys.argv)
         app.setApplicationName("Lylis Karaoke Studio")
         app.setStyle("Fusion")
+
+        # Set application-wide icon
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "app_icon.ico")
+        if not os.path.exists(icon_path):
+            icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "app_icon.png")
+        if os.path.exists(icon_path):
+            app.setWindowIcon(QIcon(icon_path))
 
         window = MainWindow()
         window.show()

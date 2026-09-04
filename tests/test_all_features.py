@@ -345,3 +345,30 @@ def test_tap_sync_dialog_instantiation():
     assert dlg.txt_input is not None
     assert dlg.prog_bar is not None
     assert dlg.btn_start is not None
+
+def test_application_icon_assets_and_window_binding():
+    import os
+    from PIL import Image
+    from PyQt5.QtGui import QIcon
+    from gui.main_window import MainWindow
+
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    png_path = os.path.join(base_dir, "assets", "app_icon.png")
+    ico_path = os.path.join(base_dir, "assets", "app_icon.ico")
+
+    assert os.path.isfile(png_path), "assets/app_icon.png must exist"
+    assert os.path.isfile(ico_path), "assets/app_icon.ico must exist"
+
+    with Image.open(png_path) as img:
+        assert img.width >= 256 and img.height >= 256
+
+    ico = QIcon(ico_path)
+    assert not ico.isNull(), "QIcon must load app_icon.ico cleanly"
+    assert not ico.pixmap(16, 16).isNull()
+    assert not ico.pixmap(256, 256).isNull()
+
+    win = MainWindow()
+    win_icon = win.windowIcon()
+    assert not win_icon.isNull(), "MainWindow must have a valid window icon set"
+    win.close()
+

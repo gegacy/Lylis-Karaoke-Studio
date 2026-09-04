@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QButtonGroup, QShortcut, QInputDialog, QFileDialog, QComboBox, QStyle
 )
 from PyQt5.QtCore import Qt, QTimer, QSize
-from PyQt5.QtGui import QColor, QKeySequence, QPixmap
+from PyQt5.QtGui import QColor, QKeySequence, QPixmap, QIcon
 
 from core.project_model import ProjectModel
 from core.undo_manager import UndoRedoManager
@@ -46,6 +46,13 @@ class MainWindow(QMainWindow):
         self.resize(1620, 980)
         self.setMinimumSize(1180, 760)
         self.setStyleSheet(DARK_THEME_QSS)
+
+        # Set Window Icon
+        icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "app_icon.ico")
+        if not os.path.exists(icon_path):
+            icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "app_icon.png")
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
 
         # Core Engines
         self.project = ProjectModel()
