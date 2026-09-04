@@ -92,6 +92,15 @@ class MainWindow(QMainWindow):
         self.autosave_timer.timeout.connect(self.perform_autosave)
         self.autosave_timer.start(30000)
 
+        # Cryptographic Hardware License Guard & Watchdog
+        from core.license_manager import LicenseManager
+        self.is_licensed = LicenseManager.is_activated()
+        self.sync_license_ui()
+
+        self.license_watchdog_timer = QTimer(self)
+        self.license_watchdog_timer.timeout.connect(self.sync_license_ui)
+        self.license_watchdog_timer.start(4000)
+
     def setup_shortcuts(self):
         QShortcut(QKeySequence("Ctrl+Z"), self, self.on_undo)
         QShortcut(QKeySequence("Ctrl+Y"), self, self.on_redo)
@@ -273,6 +282,44 @@ class MainWindow(QMainWindow):
         h_layout.addWidget(self.language_combo)
 
         main_layout.addWidget(header_bar)
+
+        # Strict Unlicensed Lockout Warning Banner Strip
+        self.unlicensed_banner = QWidget()
+        self.unlicensed_banner.setFixedHeight(36)
+        self.unlicensed_banner.setStyleSheet("""
+            QWidget {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #991b1b, stop:1 #dc2626);
+                border-bottom: 1px solid #b91c1c;
+            }
+            QLabel {
+                color: #ffffff;
+                font-weight: 700;
+                font-size: 11px;
+            }
+            QPushButton {
+                background: #ffffff;
+                color: #b91c1c;
+                font-weight: 800;
+                font-size: 11px;
+                border: none;
+                border-radius: 4px;
+                padding: 4px 12px;
+            }
+            QPushButton:hover {
+                background: #fef2f2;
+                color: #991b1b;
+            }
+        """)
+        ub_layout = QHBoxLayout(self.unlicensed_banner)
+        ub_layout.setContentsMargins(16, 0, 16, 0)
+        ub_layout.setSpacing(12)
+        lbl_warn = QLabel("⚠️ BẢN QUYỀN CHƯA KÍCH HOẠT: Không có bản quyền không thể phát nhạc, lưu dự án, biên tập AI hoặc xuất video!")
+        ub_layout.addWidget(lbl_warn)
+        ub_layout.addStretch()
+        btn_act_banner = QPushButton("🚀 KÍCH HOẠT NGAY")
+        btn_act_banner.clicked.connect(self.open_activation_dialog)
+        ub_layout.addWidget(btn_act_banner)
+        main_layout.addWidget(self.unlicensed_banner)
 
         # =====================================================================
         # 2. MAIN HORIZONTAL SPLITTER
@@ -1144,6 +1191,8 @@ class MainWindow(QMainWindow):
                 self.lbl_save_status.setText("Unsaved changes")
 
     def save_project(self):
+        if not self.require_license("Lưu dự án (Save Project)"):
+            return
         path, _ = QFileDialog.getSaveFileName(self, "Save Lylis Project", f"{self.project.title}.lylis.json", "Lylis Project (*.lylis.json);;JSON (*.json)")
         if not path:
             return
@@ -1155,6 +1204,8 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Save failed", str(exc))
 
     def open_project(self):
+        if not self.require_license("Mở dự án (Open Project)"):
+            return
         path, _ = QFileDialog.getOpenFileName(self, "Open Lylis Project", "", "Lylis Project (*.lylis.json *.json);;All Files (*.*)")
         if not path:
             return
@@ -1248,6 +1299,8 @@ class MainWindow(QMainWindow):
         return True
 
     def toggle_playback(self):
+        if not self.require_license("Phát âm thanh & Xem trước video"):
+            return
         if self.audio_engine.is_playing:
             self.audio_engine.pause()
             self.btn_play.setText("")
@@ -1443,6 +1496,8 @@ class MainWindow(QMainWindow):
             self._create_media_clip(asset, start_time + index * self._asset_duration(asset))
 
     def on_audio_loaded(self, filepath, silent=False):
+        if not silent and not self.require_license("Tải tệp âm thanh (Load Audio)"):
+            return
         if self.audio_engine.load_audio(filepath):
             self.sample_audio_path = filepath
             self.project.audio_path = filepath
@@ -1593,6 +1648,8 @@ class MainWindow(QMainWindow):
 
     def auto_edit_project(self):
         """Run a deterministic, one-click CapCut-style lyric edit pass."""
+        if not self.require_license("Tự động biên tập AI (Auto Edit)"):
+            return False
         raw_text = self.lyrics_tab.get_lrc_text().strip()
         if not raw_text:
             QMessageBox.warning(self, "Chưa có lời bài hát", "Hãy nhập hoặc tải lời bài hát trước khi Auto Edit.")
@@ -1640,6 +1697,8 @@ class MainWindow(QMainWindow):
         return True
 
     def on_background_loaded(self, filepath):
+        if not self.require_license("Tải hình nền / video nền"):
+            return
         self.sample_bg_path = filepath
         self.project.bg_path = filepath
         self.preview_widget.set_background(filepath)
@@ -1647,6 +1706,8 @@ class MainWindow(QMainWindow):
         self._push_project_state()
 
     def on_analyze_lyrics_requested(self, asset_id, audio_path):
+        if not self.require_license("Phân tích lời bài hát AI"):
+            return
         from gui.ai_lyrics_dialog import AiLyricsDialog
         dialog = AiLyricsDialog(str(asset_id), audio_path, self)
         dialog.applied.connect(self.on_ai_lyrics_applied)
@@ -2088,6 +2149,8 @@ class MainWindow(QMainWindow):
         finally:
             self._restoring_state = False
     def open_tap_sync_dialog(self):
+        if not self.require_license("Đồng bộ nhịp Tap Sync"):
+            return
         lrc_content = self.lyrics_tab.get_lrc_text() or SAMPLE_LRC_VIETNAMESE
         dlg = TapSyncDialog(self.audio_engine, lrc_content, self)
         if dlg.exec_():
@@ -2096,6 +2159,8 @@ class MainWindow(QMainWindow):
                 self.on_lyrics_updated(dlg.generated_lrc)
 
     def open_gemini_dialog(self):
+        if not self.require_license("Phân tích AI Gemini"):
+            return
         from gui.gemini_dialog import GeminiDialog
         dlg = GeminiDialog(
             current_lines=self.current_lrc_lines,
@@ -2125,14 +2190,7 @@ class MainWindow(QMainWindow):
         self._push_project_state()
 
     def open_export_dialog(self):
-        from core.license_manager import LicenseManager
-        if not LicenseManager.is_activated():
-            QMessageBox.critical(
-                self,
-                "Chưa Kích Hoạt Bản Quyền",
-                "Bạn cần kích hoạt bản quyền chính thức để xuất video MP4 1080p!\n\n"
-                "Vui lòng nhấn phím F1 hoặc nút 'Bản quyền' để kích hoạt."
-            )
+        if not self.require_license("Xuất video MP4 1080p"):
             return
 
         style_cfg = dict(self.project.style)
@@ -2176,11 +2234,64 @@ class MainWindow(QMainWindow):
         )
         dlg.exec_()
 
+    def sync_license_ui(self):
+        """Synchronizes license status across window title, banner, preview canvas, and actions."""
+        from core.license_manager import LicenseManager
+        self.is_licensed = LicenseManager.is_activated()
+
+        if hasattr(self, 'unlicensed_banner'):
+            self.unlicensed_banner.setVisible(not self.is_licensed)
+
+        if hasattr(self, 'preview_widget'):
+            self.preview_widget.update()
+
+        if not self.is_licensed:
+            if hasattr(self, 'lbl_proj_title'):
+                self.setWindowTitle(f"Lylis Karaoke Studio - ⚠️ CHƯA KÍCH HOẠT BẢN QUYỀN (KHÔNG THỂ SỬ DỤNG) - {self.project.title}")
+            if hasattr(self, 'audio_engine') and self.audio_engine.is_playing:
+                self.audio_engine.pause()
+                if hasattr(self, 'btn_play'):
+                    self.btn_play.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        else:
+            if hasattr(self, 'lbl_proj_title'):
+                self.setWindowTitle(f"Lylis - {self.project.title}")
+
+    def require_license(self, action_name: str = "thao tác này") -> bool:
+        """
+        Non-bypassable license enforcement guard.
+        Blocks the requested action and opens the activation modal if unlicensed.
+        """
+        from core.license_manager import LicenseManager
+        if LicenseManager.is_activated():
+            self.sync_license_ui()
+            return True
+
+        from PyQt5.QtWidgets import QMessageBox
+        QMessageBox.critical(
+            self,
+            "Chưa Kích Hoạt Bản Quyền",
+            f"⚠️ KHÔNG THỂ SỬ DỤNG: Tính năng '{action_name}' đã bị khóa!\n\n"
+            f"Nếu không có bản quyền hợp lệ, phần mềm không thể hoạt động.\n"
+            f"Mã thiết bị của bạn (Machine ID): {LicenseManager.get_machine_id()}\n\n"
+            f"Vui lòng nhấn 'Kích hoạt' hoặc liên hệ gegacy để nhận mã kích hoạt."
+        )
+        self.open_activation_dialog()
+        self.sync_license_ui()
+        return self.is_licensed
+
+    def open_activation_dialog(self):
+        """Opens the hardware-locked activation modal dialog."""
+        from gui.activation_dialog import ActivationDialog
+        dlg = ActivationDialog(self)
+        dlg.exec_()
+        self.sync_license_ui()
+
     def open_license_dialog(self):
         """Display the Design & Software License dialog."""
         from gui.license_dialog import LicenseDialog
         dlg = LicenseDialog(self)
         dlg.exec_()
+        self.sync_license_ui()
 
     def on_clear_cache_clicked(self):
         from core.cache_manager import CacheManager
@@ -2194,6 +2305,11 @@ class MainWindow(QMainWindow):
         )
 
     def closeEvent(self, event):
+        try:
+            if hasattr(self, 'license_watchdog_timer') and self.license_watchdog_timer.isActive():
+                self.license_watchdog_timer.stop()
+        except Exception:
+            pass
         try:
             if hasattr(self, 'render_timer') and self.render_timer.isActive():
                 self.render_timer.stop()

@@ -272,6 +272,12 @@ class LicenseDialog(QDialog):
         btn_change_key.clicked.connect(self.open_activation_dialog)
         btn_layout.addWidget(btn_change_key)
 
+        btn_deactivate = QPushButton("🗑️ Hủy Kích Hoạt (Test)")
+        btn_deactivate.setToolTip("Xóa bản quyền để kiểm tra chế độ khóa hoặc chuyển máy")
+        btn_deactivate.setStyleSheet("QPushButton { color: #f87171; border-color: #ef4444; } QPushButton:hover { background-color: #450a0a; color: #fca5a5; }")
+        btn_deactivate.clicked.connect(self.deactivate_license)
+        btn_layout.addWidget(btn_deactivate)
+
         btn_layout.addStretch()
 
         btn_close = QPushButton("Đóng")
@@ -282,10 +288,35 @@ class LicenseDialog(QDialog):
 
         layout.addLayout(btn_layout)
 
+    def deactivate_license(self):
+        from core.license_manager import LicenseManager
+        reply = QMessageBox.question(
+            self,
+            "Xác nhận Hủy Kích Hoạt",
+            "Bạn có chắc muốn hủy kích hoạt bản quyền trên máy này?\n\n"
+            "Sau khi hủy bản quyền:\n"
+            "• Phần mềm sẽ khóa toàn bộ tính năng (lưu dự án, phát nhạc, biên tập, xuất video).\n"
+            "• Khi khởi động lại, bắt buộc phải nhập mã kích hoạt mới có thể sử dụng.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            LicenseManager.deactivate()
+            QMessageBox.information(
+                self,
+                "Đã Hủy Bản Quyền",
+                "Đã hủy kích hoạt bản quyền thành công!\nPhần mềm hiện đã chuyển sang trạng thái CHƯA KÍCH HOẠT (LOCKED)."
+            )
+            if self.parent() and hasattr(self.parent(), 'sync_license_ui'):
+                self.parent().sync_license_ui()
+            self.accept()
+
     def open_activation_dialog(self):
         from gui.activation_dialog import ActivationDialog
         dlg = ActivationDialog(self)
         if dlg.exec_() == 1:  # QDialog.Accepted
+            if self.parent() and hasattr(self.parent(), 'sync_license_ui'):
+                self.parent().sync_license_ui()
             self.accept()
 
     def open_license_file(self):

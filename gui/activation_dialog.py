@@ -135,6 +135,27 @@ class ActivationDialog(QDialog):
         divider.setFixedHeight(1)
         layout.addWidget(divider)
 
+        # Mandatory license warning notice
+        warn_box = QFrame()
+        warn_box.setStyleSheet("""
+            QFrame {
+                background-color: #2a1215;
+                border: 1px solid #ef4444;
+                border-radius: 6px;
+            }
+            QLabel {
+                color: #fca5a5;
+                font-size: 11px;
+                font-weight: 600;
+            }
+        """)
+        wb_layout = QHBoxLayout(warn_box)
+        wb_layout.setContentsMargins(10, 6, 10, 6)
+        lbl_w = QLabel("⚠️ BẢN QUYỀN BẮT BUỘC: Không có bản quyền không thể sử dụng ứng dụng. Vui lòng kích hoạt để mở khóa.")
+        lbl_w.setWordWrap(True)
+        wb_layout.addWidget(lbl_w)
+        layout.addWidget(warn_box)
+
         # Machine ID field with copy button
         lbl_mach = QLabel("MÃ THIẾT BỊ CỦA BẠN (MACHINE ID):")
         lbl_mach.setStyleSheet("font-size: 11px; font-weight: 700; color: #94a3b8;")

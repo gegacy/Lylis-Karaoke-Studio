@@ -384,6 +384,11 @@ class PreviewWidget(QWidget):
             if self.enable_watermark:
                 self.draw_watermark(painter, v_rect)
 
+            # Strict Hardware-Locked Cryptographic License Overlay
+            from core.license_manager import LicenseManager
+            if not LicenseManager.is_activated():
+                self.draw_unlicensed_overlay(painter, v_rect)
+
             painter.restore()
 
             # Canvas Border Stroke
@@ -392,6 +397,101 @@ class PreviewWidget(QWidget):
             painter.drawRoundedRect(QRectF(v_rect), 12, 12)
         finally:
             painter.end()
+
+    def draw_unlicensed_overlay(self, painter: QPainter, v_rect: QRect):
+        """
+        Renders an un-bypassable dark hazard lock overlay when application is unlicensed.
+        Prevents previewing, capturing, recording, or using the studio canvas without a valid license.
+        """
+        from core.license_manager import LicenseManager
+        mach_id = LicenseManager.get_machine_id()
+
+        # 1. Dark frosted backdrop completely obscuring all content beneath
+        painter.fillRect(v_rect, QColor(11, 15, 25, 240))
+
+        # 2. Diagonal repeating watermark stripes across canvas
+        painter.save()
+        font_wm = QFont("Segoe UI", 14, QFont.Bold)
+        painter.setFont(font_wm)
+        painter.setPen(QColor(239, 68, 68, 35))
+        for i in range(-5, 20):
+            painter.drawText(
+                v_rect.x() + 15,
+                v_rect.y() + i * 65,
+                "🔒 CHƯA KÍCH HOẠT • UNLICENSED DEMO LOCKED • KHÔNG THỂ SỬ DỤNG"
+            )
+        painter.restore()
+
+        # 3. Center Lock Card Box
+        card_w = min(int(v_rect.width() * 0.9), 540)
+        card_h = min(int(v_rect.height() * 0.75), 290)
+        if card_w < 200 or card_h < 120:
+            painter.setPen(QColor(248, 113, 113))
+            painter.setFont(QFont("Segoe UI", 12, QFont.Bold))
+            painter.drawText(v_rect, Qt.AlignCenter, "🔒 CHƯA KÍCH HOẠT BẢN QUYỀN")
+            return
+
+        card_x = v_rect.x() + (v_rect.width() - card_w) // 2
+        card_y = v_rect.y() + (v_rect.height() - card_h) // 2
+        card_rect = QRect(card_x, card_y, card_w, card_h)
+
+        painter.save()
+        painter.setPen(QPen(QColor(239, 68, 68, 220), 2.0))
+        painter.setBrush(QColor(24, 15, 23, 245))
+        painter.drawRoundedRect(QRectF(card_rect), 12, 12)
+
+        # Header Title
+        painter.setPen(QColor(248, 113, 113))
+        font_title = QFont("Segoe UI", 15, QFont.Bold)
+        painter.setFont(font_title)
+        painter.drawText(
+            QRect(card_x, card_y + 14, card_w, 32),
+            Qt.AlignCenter,
+            "🔒 CHƯA KÍCH HOẠT BẢN QUYỀN"
+        )
+
+        # Warning explanation
+        painter.setPen(QColor(241, 245, 249))
+        font_body = QFont("Segoe UI", 10, QFont.DemiBold)
+        painter.setFont(font_body)
+        painter.drawText(
+            QRect(card_x + 18, card_y + 48, card_w - 36, 44),
+            Qt.AlignCenter | Qt.TextWordWrap,
+            "Ứng dụng bị khóa toàn bộ. Không thể phát nhạc, lưu dự án, biên tập AI hoặc xuất video khi chưa có bản quyền."
+        )
+
+        # Machine ID badge
+        badge_w = min(card_w - 40, 360)
+        badge_rect = QRect(card_x + (card_w - badge_w) // 2, card_y + 98, badge_w, 34)
+        painter.setPen(QPen(QColor(56, 189, 248, 180), 1))
+        painter.setBrush(QColor(15, 23, 42, 220))
+        painter.drawRoundedRect(QRectF(badge_rect), 6, 6)
+
+        painter.setPen(QColor(56, 189, 248))
+        font_code = QFont("Consolas", 11, QFont.Bold)
+        painter.setFont(font_code)
+        painter.drawText(badge_rect, Qt.AlignCenter, f"Machine ID: {mach_id}")
+
+        # Activation Instruction
+        painter.setPen(QColor(203, 213, 225))
+        font_hint = QFont("Segoe UI", 10)
+        painter.setFont(font_hint)
+        painter.drawText(
+            QRect(card_x + 18, card_y + 142, card_w - 36, 36),
+            Qt.AlignCenter | Qt.TextWordWrap,
+            "Nhấn phím F1 hoặc nút [Bản quyền] trên thanh công cụ để kích hoạt bản quyền."
+        )
+
+        # gegacy Studio owner copyright credit
+        painter.setPen(QColor(148, 163, 184))
+        font_subhint = QFont("Segoe UI", 9)
+        painter.setFont(font_subhint)
+        painter.drawText(
+            QRect(card_x + 18, card_y + card_h - 28, card_w - 36, 20),
+            Qt.AlignCenter,
+            "Bảo vệ bản quyền chính thức bởi gegacy • Lylis Karaoke Studio"
+        )
+        painter.restore()
 
     def apply_scene_transition(self, painter: QPainter, v_rect: QRect):
         for position in ('start', 'end'):

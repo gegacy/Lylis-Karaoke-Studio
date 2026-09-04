@@ -113,13 +113,14 @@ class LicenseManager:
         if os.environ.get("LYLIS_TEST_MODE") == "1" or "pytest" in sys.modules:
             return True
 
-        if cls._cached_status is not None:
-            return cls._cached_status
-
         lic_path = cls._get_license_file_path()
         if not os.path.exists(lic_path):
             cls._cached_status = False
+            cls._cached_info = None
             return False
+
+        if cls._cached_status is not None:
+            return cls._cached_status
 
         try:
             with open(lic_path, "rb") as f:
@@ -220,13 +221,27 @@ class LicenseManager:
 
     @classmethod
     def deactivate(cls) -> bool:
-        """Revokes local activation."""
+        """Revokes local activation and clears all cached state."""
         try:
             lic_path = cls._get_license_file_path()
             if os.path.exists(lic_path):
-                os.remove(lic_path)
-            cls._cached_status = None
+                try:
+                    os.remove(lic_path)
+                except Exception:
+                    pass
+
+            from core.paths import get_user_data_dir
+            appdata_lic = os.path.join(get_user_data_dir(), "license.dat")
+            if os.path.exists(appdata_lic):
+                try:
+                    os.remove(appdata_lic)
+                except Exception:
+                    pass
+
+            cls._cached_status = False
             cls._cached_info = None
             return True
         except Exception:
+            cls._cached_status = False
+            cls._cached_info = None
             return False
