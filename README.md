@@ -109,6 +109,7 @@ One-click complete visual styling packages:
 | <kbd>Ctrl</kbd>+<kbd>O</kbd> | **Open Project** (`.lylis.json`) |
 | <kbd>Ctrl</kbd>+<kbd>S</kbd> | **Save Project** |
 | <kbd>Ctrl</kbd>+<kbd>E</kbd> | **Export Video** dialog |
+| <kbd>F1</kbd> | **Giấy phép & Bản quyền thiết kế** (License & About) |
 
 ---
 
@@ -150,6 +151,7 @@ Lylis-Karaoke-Studio/
 ├── build_icon.py               # Generates multi-resolution Windows ICO (16x16 to 256x256)
 ├── build_exe.bat               # PyInstaller 1-click executable builder with custom icon
 ├── LylisKaraokeStudio.spec     # PyInstaller configuration & asset packaging spec
+├── LICENSE                     # Software & design license agreement
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # Application documentation
 ├── .gitignore                  # Git ignore rules for Python & PyQt5
@@ -162,6 +164,7 @@ Lylis-Karaoke-Studio/
 │   └── sample_bg.jpg           # Default studio backdrop
 │
 ├── core/                       # Audio/Video & Core Business Logic
+│   ├── paths.py                # Unified path, asset & writable environment resolver
 │   ├── lrc_engine.py           # Word-level LRC/SRT parser & serializer
 │   ├── audio_engine.py         # Pygame mixer, pitch/tempo, waveform extraction
 │   ├── video_renderer.py       # 1080p MP4 rendering engine & audio muxer
@@ -176,6 +179,7 @@ Lylis-Karaoke-Studio/
 │
 ├── gui/                        # PyQt5 User Interface
 │   ├── main_window.py          # Master window, menus, toolbar & shortcuts
+│   ├── license_dialog.py       # In-app Design & Software License dialog (F1)
 │   ├── preview_widget.py       # 60 FPS QPainter karaoke preview canvas
 │   ├── timeline_widget.py      # CapCut multi-track timeline sequencer
 │   ├── inspector_panel.py      # Property inspector for selected elements
@@ -191,7 +195,7 @@ Lylis-Karaoke-Studio/
 │       ├── transitions_tab.py  # Scene transitions (Fade, Slide, Zoom)
 │       └── templates_tab.py    # 12-preset visual template gallery
 │
-└── tests/                      # Automated Test Suite (52 Unit/Integration Tests)
+└── tests/                      # Automated Test Suite (54 Unit & Integration Tests)
     ├── test_all_features.py
     ├── test_integration_regressions.py
     └── test_ai_analysis_regressions.py
@@ -206,10 +210,15 @@ Run the complete test suite with `pytest`:
 python -m pytest tests -v
 ```
 
-All 52 unit and regression tests run offline without external API dependencies.
+All 54 unit and regression tests run offline without external API dependencies.
 
 ---
 
-## 📄 License
+## 📄 License & Design Rights
 
-Proprietary software developed by **gegacy**. All rights reserved.
+**Copyright (c) 2026 gegacy / Lylis Studio. All rights reserved.**
+
+- **Studio Creator License**: Grants personal and commercial rights to create, render, publish, and monetize all videos produced with Lylis Karaoke Studio with zero royalties.
+- **Design Protection**: The UI architecture, CapCut timeline sequencer, and 12 exclusive styling presets are protected design assets of Lylis Studio.
+- **In-App License Dialog**: Press <kbd>F1</kbd> or click **📜 Bản quyền** in the top navigation bar to inspect license status, design system specs, and open source attributions (PyQt5, FFmpeg, Pygame, Pillow, NumPy).
+

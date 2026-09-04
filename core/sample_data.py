@@ -6,6 +6,8 @@ import math
 import wave
 import struct
 
+from core.paths import get_asset_path
+
 SAMPLE_LRC_VIETNAMESE = """[00:02.50](00:02.50)Nhân (00:03.10)duyên (00:03.60)phải (00:04.20)kiếm {singer:male}
 [00:05.80](00:05.80)Mà (00:06.30)làm (00:06.80)anh (00:07.40)nhớ (00:08.00)ánh (00:08.50)mắt (00:09.10)đầu {singer:male}
 [00:11.20](00:11.20)Chắc (00:11.70)em (00:12.20)vừa (00:12.70)buồn (00:13.30)lắm {singer:female}
@@ -19,11 +21,14 @@ SAMPLE_LRC_VIETNAMESE = """[00:02.50](00:02.50)Nhân (00:03.10)duyên (00:03.60)
 [00:43.00](00:43.00)Em (00:43.50)đây (00:44.00)chẳng (00:44.50)cần (00:45.00)gác (00:45.50)tía (00:46.00)cung (00:46.80)vàng {singer:female}"""
 
 def ensure_sample_assets():
-    assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets')
-    os.makedirs(assets_dir, exist_ok=True)
+    assets_dir = get_asset_path()
+    try:
+        os.makedirs(assets_dir, exist_ok=True)
+    except Exception:
+        pass
     
-    bg_path = os.path.join(assets_dir, 'sample_bg.jpg')
-    audio_path = os.path.join(assets_dir, 'sample_audio.wav')
+    bg_path = get_asset_path('sample_bg.jpg')
+    audio_path = get_asset_path('sample_audio.wav')
     
     # Create sample background if not exists
     if not os.path.exists(bg_path):

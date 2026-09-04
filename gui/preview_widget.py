@@ -105,10 +105,9 @@ class PreviewWidget(QWidget):
 
         # Retro 90s Pop-Art Singer Icons (Male, Female, Both)
         self.retro_icons = {}
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        icon_dir = os.path.join(base_dir, "assets", "icons")
+        from core.paths import get_asset_path
         for role, fname in [("male", "male_retro.png"), ("female", "female_retro.png"), ("both", "both_retro.png")]:
-            fpath = os.path.join(icon_dir, fname)
+            fpath = get_asset_path("icons", fname)
             if os.path.exists(fpath):
                 self.retro_icons[role] = QPixmap(fpath)
 
@@ -2367,8 +2366,8 @@ class PreviewWidget(QWidget):
             if self.enable_pointer and is_singing_now:
                 retro_pix = self.retro_icons.get(singer)
                 if retro_pix is None or retro_pix.isNull():
-                    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    fpath = os.path.join(base_dir, "assets", "icons", f"{singer}_retro.png")
+                    from core.paths import get_asset_path
+                    fpath = get_asset_path("icons", f"{singer}_retro.png")
                     if os.path.exists(fpath):
                         self.retro_icons[singer] = QPixmap(fpath)
                         retro_pix = self.retro_icons.get(singer)

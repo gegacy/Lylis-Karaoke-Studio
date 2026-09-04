@@ -21,7 +21,8 @@ def setup_crash_logger():
         print(f"\n[FATAL ERROR]\n{tb_text}", file=sys.stdout, flush=True)
 
         try:
-            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "crash.log")
+            from core.paths import get_safe_writable_path
+            log_path = get_safe_writable_path("crash.log")
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"\n=== Crash at {time.strftime('%Y-%m-%d %H:%M:%S')} ===\n")
                 f.write(tb_text + "\n")
@@ -69,9 +70,10 @@ def main():
         app.setStyle("Fusion")
 
         # Set application-wide icon
-        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "app_icon.ico")
+        from core.paths import get_asset_path
+        icon_path = get_asset_path("app_icon.ico")
         if not os.path.exists(icon_path):
-            icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "app_icon.png")
+            icon_path = get_asset_path("app_icon.png")
         if os.path.exists(icon_path):
             app.setWindowIcon(QIcon(icon_path))
 
@@ -85,7 +87,8 @@ def main():
         print(f"\n[Application Exception]\n{tb_text}", file=sys.stderr, flush=True)
         print(f"\n[Application Exception]\n{tb_text}", file=sys.stdout, flush=True)
         try:
-            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "crash.log")
+            from core.paths import get_safe_writable_path
+            log_path = get_safe_writable_path("crash.log")
             with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"\n=== Crash at {time.strftime('%Y-%m-%d %H:%M:%S')} ===\n")
                 f.write(tb_text + "\n")

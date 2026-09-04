@@ -299,10 +299,10 @@ class MediaTab(QWidget):
         self.list_layout.setContentsMargins(0, 0, 0, 0)
         self.list_layout.setSpacing(6)
 
-        # Populate with real bundled assets (paths remain valid outside the project cwd).
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self.add_media_card("sample_audio.wav", "Âm thanh • Demo", "🎵", os.path.join(project_root, "assets", "sample_audio.wav"), "audio")
-        self.add_media_card("sample_bg.jpg", "Hình ảnh • 1920x1080", "🖼️", os.path.join(project_root, "assets", "sample_bg.jpg"), "image")
+        # Populate with real bundled assets (paths remain valid outside the project cwd and in frozen builds).
+        from core.paths import get_asset_path
+        self.add_media_card("sample_audio.wav", "Âm thanh • Demo", "🎵", get_asset_path("sample_audio.wav"), "audio")
+        self.add_media_card("sample_bg.jpg", "Hình ảnh • 1920x1080", "🖼️", get_asset_path("sample_bg.jpg"), "image")
 
         self.list_layout.addStretch()
         scroll.setWidget(self.list_container)

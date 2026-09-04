@@ -1,0 +1,68 @@
+==============================================================================
+LYLIS KARAOKE STUDIO - END USER LICENSE AGREEMENT & SOFTWARE LICENSE
+==============================================================================
+Copyright (c) 2026 gegacy / Lylis Studio. All rights reserved.
+
+1. GRANT OF LICENSE
+-------------------
+gegacy grants you a non-exclusive, perpetual, worldwide license to use
+Lylis Karaoke Studio ("Software") for personal, commercial, educational, and
+entertainment purposes.
+
+Under this license, you are authorized to:
+- Install and run the Software on compatible Windows workstations and systems.
+- Create, compose, synchronize, render, and export lyric videos, karaoke videos,
+  and audio-visual presentations of any kind.
+- Monetize, publish, broadcast, distribute, and sell all exported video and
+  audio media produced with the Software without paying any royalties or license
+  fees to the licensor.
+
+2. RESTRICTIONS
+---------------
+Except as explicitly authorized by the licensor, you may not:
+- Reverse engineer, decompile, or disassemble the binary distribution of the Software.
+- Sublicense, rent, lease, or resell the Software binary as a standalone product.
+- Remove or obscure any copyright notices or trademarks of Lylis Studio.
+
+3. DESIGN SYSTEM & ASSETS
+-------------------------
+The visual interface, icons, color palettes, motion effects, and built-in
+styling templates (including Tiki Tiki Sunset, Walters Lyric Queue,
+Ambient Album Player, Multi-Song Album Player, K-Sector 2000s, Falling You DJ,
+Eminem Rap & Hip-Hop, and associated visualizers) are proprietary design assets
+of Lylis Studio.
+
+Users have full commercial rights to videos generated using these design templates.
+
+4. THIRD-PARTY OPEN SOURCE ATTRIBUTIONS
+----------------------------------------
+This Software incorporates and links against open source components:
+
+- PyQt5
+  Copyright (c) Riverbank Computing Limited
+  Licensed under GNU General Public License v3 / Commercial License
+
+- FFmpeg / imageio-ffmpeg
+  Copyright (c) FFmpeg developers
+  Licensed under GNU Lesser General Public License (LGPL) 2.1+ / GPL 2.0+
+
+- Pygame
+  Copyright (c) Pete Shinners and Pygame Community
+  Licensed under GNU Lesser General Public License (LGPL) 2.1
+
+- Pillow (PIL Fork)
+  Copyright (c) Jeffrey A. Clark (Alex) and contributors
+  Licensed under HPND License
+
+- NumPy
+  Copyright (c) NumPy Developers
+  Licensed under BSD 3-Clause License
+
+5. DISCLAIMER OF WARRANTY
+-------------------------
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY ARISING OUT OF OR IN CONNECTION WITH THE SOFTWARE.
+==============================================================================

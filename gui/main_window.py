@@ -48,9 +48,10 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(DARK_THEME_QSS)
 
         # Set Window Icon
-        icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "app_icon.ico")
+        from core.paths import get_asset_path
+        icon_path = get_asset_path("app_icon.ico")
         if not os.path.exists(icon_path):
-            icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "app_icon.png")
+            icon_path = get_asset_path("app_icon.png")
         if os.path.exists(icon_path):
             self.setWindowIcon(QIcon(icon_path))
 
@@ -113,6 +114,7 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Escape"), self, self.exit_preview_focus)
         QShortcut(QKeySequence("Delete"), self, self.delete_active_selection)
         QShortcut(QKeySequence("Backspace"), self, self.delete_active_selection)
+        QShortcut(QKeySequence("F1"), self, self.open_license_dialog)
 
     def setup_ui(self):
         main_widget = QWidget()
@@ -222,6 +224,11 @@ class MainWindow(QMainWindow):
         self.btn_clear_cache.setToolTip("Tự động dọn dẹp bộ nhớ đệm cache và tệp tạm")
         self.btn_clear_cache.clicked.connect(self.on_clear_cache_clicked)
         h_layout.addWidget(self.btn_clear_cache)
+
+        self.btn_license = QPushButton("📜 Bản quyền")
+        self.btn_license.setToolTip("Xem giấy phép & bản quyền thiết kế Lylis Studio (F1)")
+        self.btn_license.clicked.connect(self.open_license_dialog)
+        h_layout.addWidget(self.btn_license)
 
         # Right Export MP4 Button
         self.btn_auto_edit = QPushButton("✨ AUTO EDIT")
@@ -1863,8 +1870,8 @@ class MainWindow(QMainWindow):
             import json
             if hasattr(self, "lbl_save_status"):
                 self.lbl_save_status.setText("Saving...")
-            root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            save_path = os.path.join(root_dir, ".autosave.lylis.json")
+            from core.paths import get_safe_writable_path
+            save_path = get_safe_writable_path(".autosave.lylis.json")
             with open(save_path, "w", encoding="utf-8") as f:
                 json.dump(self.project.to_dict(), f, ensure_ascii=False, indent=2)
             if hasattr(self, "lbl_save_status"):
@@ -2157,6 +2164,12 @@ class MainWindow(QMainWindow):
             style_cfg,
             self
         )
+        dlg.exec_()
+
+    def open_license_dialog(self):
+        """Display the Design & Software License dialog."""
+        from gui.license_dialog import LicenseDialog
+        dlg = LicenseDialog(self)
         dlg.exec_()
 
     def on_clear_cache_clicked(self):

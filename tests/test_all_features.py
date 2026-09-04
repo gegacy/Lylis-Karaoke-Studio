@@ -370,5 +370,41 @@ def test_application_icon_assets_and_window_binding():
     win = MainWindow()
     win_icon = win.windowIcon()
     assert not win_icon.isNull(), "MainWindow must have a valid window icon set"
+    assert hasattr(win, "btn_license"), "MainWindow must have btn_license button"
     win.close()
+
+def test_core_paths_and_license_dialog():
+    import os
+    from core.paths import get_app_root, get_asset_path, get_user_data_dir, get_safe_writable_path
+    from gui.license_dialog import LicenseDialog
+
+    # Test path resolver
+    root = get_app_root()
+    assert os.path.isdir(root)
+
+    asset_ico = get_asset_path("app_icon.ico")
+    assert os.path.isfile(asset_ico)
+
+    user_dir = get_user_data_dir()
+    assert os.path.isdir(user_dir)
+
+    safe_path = get_safe_writable_path("test_write.tmp")
+    assert os.path.basename(safe_path) == "test_write.tmp"
+    if os.path.exists(safe_path):
+        os.remove(safe_path)
+
+    # Test LICENSE file
+    lic_file = os.path.join(root, "LICENSE")
+    assert os.path.isfile(lic_file)
+    with open(lic_file, "r", encoding="utf-8") as f:
+        lic_text = f.read()
+        assert "LYLIS KARAOKE STUDIO" in lic_text
+        assert "gegacy" in lic_text
+
+    # Test LicenseDialog GUI instantiation
+    dlg = LicenseDialog()
+    assert dlg.windowTitle() != ""
+    assert not dlg.windowIcon().isNull()
+    dlg.close()
+
 
