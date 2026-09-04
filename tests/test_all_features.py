@@ -407,4 +407,47 @@ def test_core_paths_and_license_dialog():
     assert not dlg.windowIcon().isNull()
     dlg.close()
 
+def test_anti_bypass_license_manager_and_activation():
+    from core.license_manager import LicenseManager, MASTER_KEY
+    from gui.activation_dialog import ActivationDialog
+
+    # 1. Machine ID validation (XXXX-XXXX-XXXX-XXXX)
+    mach = LicenseManager.get_machine_id()
+    assert len(mach) == 19
+    assert mach.count("-") == 3
+
+    # 2. Key generation & verification
+    name = "Test Studio User"
+    valid_key = LicenseManager.generate_license_key(mach, name, "PRO")
+    assert valid_key.startswith("LKS-")
+    assert LicenseManager.verify_license_key(valid_key, mach, name, "PRO") is True
+
+    # 3. Anti-bypass / Tamper checks
+    assert LicenseManager.verify_license_key("LKS-FAKE-KEY1-2345-6789", mach, name, "PRO") is False
+    assert LicenseManager.verify_license_key(valid_key, "OTHER-MACH-ID12-3456", name, "PRO") is False
+    assert LicenseManager.verify_license_key(valid_key, mach, "Another Hacker", "PRO") is False
+
+    # 4. Master Developer Key check
+    assert LicenseManager.verify_license_key(MASTER_KEY, mach, name) is True
+
+    # 5. Activation cycle with encrypted storage
+    ok, msg = LicenseManager.activate(valid_key, name, "PRO")
+    assert ok is True
+    assert LicenseManager.is_activated() is True
+
+    info = LicenseManager.get_license_info()
+    assert info["name"] == name
+    assert info["machine_id"] == mach
+    assert info["key"] == valid_key
+
+    # 6. ActivationDialog instantiation & UI validation
+    dlg = ActivationDialog()
+    assert dlg.txt_machine_id.text() == mach
+    assert dlg.windowTitle() != ""
+    dlg.close()
+
+    # 7. Clean deactivation
+    assert LicenseManager.deactivate() is True
+
+
 

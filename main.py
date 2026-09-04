@@ -77,6 +77,17 @@ def main():
         if os.path.exists(icon_path):
             app.setWindowIcon(QIcon(icon_path))
 
+        # Strict Hardware-Locked Cryptographic License Guard
+        from core.license_manager import LicenseManager
+        if not LicenseManager.is_activated():
+            from gui.activation_dialog import ActivationDialog
+            from PyQt5.QtWidgets import QDialog
+            act_dialog = ActivationDialog()
+            result = act_dialog.exec_()
+            if result != QDialog.Accepted or not LicenseManager.is_activated():
+                # Exit immediately if unactivated - cannot bypass into MainWindow
+                sys.exit(0)
+
         window = MainWindow()
         window.show()
 

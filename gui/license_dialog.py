@@ -121,22 +121,32 @@ class LicenseDialog(QDialog):
         lbl_app_desc.setStyleSheet("font-size: 12px; color: #94a3b8;")
         title_vbox.addWidget(lbl_app_desc)
 
+        from core.license_manager import LicenseManager
+        is_active = LicenseManager.is_activated()
+        lic_data = LicenseManager.get_license_info()
+        tier_str = lic_data.get("tier", "PRO")
+
         badge_hbox = QHBoxLayout()
         badge_hbox.setSpacing(8)
 
-        lbl_badge_status = QLabel("● ĐÃ KÍCH HOẠT (ACTIVE)")
-        lbl_badge_status.setStyleSheet("""
-            background-color: #064e3b;
-            color: #34d399;
+        status_text = "● ĐÃ KÍCH HOẠT (ACTIVE)" if is_active else "○ CHƯA KÍCH HOẠT (UNLICENSED)"
+        status_color = "#34d399" if is_active else "#f87171"
+        status_bg = "#064e3b" if is_active else "#450a0a"
+        status_border = "#059669" if is_active else "#ef4444"
+
+        lbl_badge_status = QLabel(status_text)
+        lbl_badge_status.setStyleSheet(f"""
+            background-color: {status_bg};
+            color: {status_color};
             font-size: 10px;
             font-weight: 700;
             padding: 3px 8px;
             border-radius: 4px;
-            border: 1px solid #059669;
+            border: 1px solid {status_border};
         """)
         badge_hbox.addWidget(lbl_badge_status)
 
-        lbl_badge_tier = QLabel("STUDIO PRO LICENSE")
+        lbl_badge_tier = QLabel(f"STUDIO {tier_str} LICENSE")
         lbl_badge_tier.setStyleSheet("""
             background-color: #1e1b4b;
             color: #a78bfa;
@@ -164,12 +174,16 @@ class LicenseDialog(QDialog):
         tab_lic_layout.setContentsMargins(12, 12, 12, 12)
         tab_lic_layout.setSpacing(10)
 
-        lic_info_html = """
+        licensee = lic_data.get("name", "Chưa đăng ký")
+        key_val = lic_data.get("key", "NONE")
+        mach_id = lic_data.get("machine_id", LicenseManager.get_machine_id())
+
+        lic_info_html = f"""
         <div style="color: #cbd5e1; font-size: 12px; line-height: 1.6;">
-            <p><b>Chủ sở hữu bản quyền & Thiết kế:</b> <span style="color: #38bdf8;">gegacy / Lylis Studio</span></p>
-            <p><b>Quyền sử dụng thương mại:</b> Được cấp quyền trọn đời, toàn cầu để sản xuất video thương mại (YouTube, TikTok, Facebook, Truyền hình, Sân khấu Karaoke) không giới hạn bản quyền.</p>
-            <p><b>Bảo hộ thiết kế:</b> Hệ thống giao diện CapCut Timeline, 12 Mẫu Visualizer độc quyền, và bộ nhận diện thương hiệu Lylis Studio được bảo hộ theo luật sở hữu trí tuệ.</p>
-            <p><b>Mã bản quyền:</b> <code style="background:#0f172a; padding:2px 6px; border-radius:3px; color:#f472b6;">LKS-STUDIO-PRO-2026-VN-VERIFIED</code></p>
+            <p><b>Người sở hữu bản quyền:</b> <span style="color: #38bdf8;">{licensee}</span></p>
+            <p><b>Mã thiết bị (Machine ID):</b> <code style="background:#0b0f19; padding:2px 6px; border-radius:3px; color:#38bdf8;">{mach_id}</code></p>
+            <p><b>Mã kích hoạt (License Key):</b> <code style="background:#0b0f19; padding:2px 6px; border-radius:3px; color:#f472b6;">{key_val}</code></p>
+            <p><b>Quyền sử dụng thương mại:</b> Cấp quyền trọn đời, toàn cầu để sản xuất và kiếm tiền từ video karaoke/lyric với 0% phí bản quyền.</p>
         </div>
         """
         lbl_lic_info = QLabel(lic_info_html)
@@ -253,6 +267,11 @@ class LicenseDialog(QDialog):
         btn_open_file.clicked.connect(self.open_license_file)
         btn_layout.addWidget(btn_open_file)
 
+        btn_change_key = QPushButton("🔑 Đổi Mã Kích Hoạt")
+        btn_change_key.setToolTip("Nhập mã bản quyền mới hoặc kích hoạt lại")
+        btn_change_key.clicked.connect(self.open_activation_dialog)
+        btn_layout.addWidget(btn_change_key)
+
         btn_layout.addStretch()
 
         btn_close = QPushButton("Đóng")
@@ -262,6 +281,12 @@ class LicenseDialog(QDialog):
         btn_layout.addWidget(btn_close)
 
         layout.addLayout(btn_layout)
+
+    def open_activation_dialog(self):
+        from gui.activation_dialog import ActivationDialog
+        dlg = ActivationDialog(self)
+        if dlg.exec_() == 1:  # QDialog.Accepted
+            self.accept()
 
     def open_license_file(self):
         lic_path = os.path.join(get_app_root(), "LICENSE")

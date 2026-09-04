@@ -2125,6 +2125,16 @@ class MainWindow(QMainWindow):
         self._push_project_state()
 
     def open_export_dialog(self):
+        from core.license_manager import LicenseManager
+        if not LicenseManager.is_activated():
+            QMessageBox.critical(
+                self,
+                "Chưa Kích Hoạt Bản Quyền",
+                "Bạn cần kích hoạt bản quyền chính thức để xuất video MP4 1080p!\n\n"
+                "Vui lòng nhấn phím F1 hoặc nút 'Bản quyền' để kích hoạt."
+            )
+            return
+
         style_cfg = dict(self.project.style)
         style_cfg.update(self.project.effects)
         style_cfg.update(self.project.elements)

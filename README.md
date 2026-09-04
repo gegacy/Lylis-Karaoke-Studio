@@ -165,6 +165,7 @@ Lylis-Karaoke-Studio/
 │
 ├── core/                       # Audio/Video & Core Business Logic
 │   ├── paths.py                # Unified path, asset & writable environment resolver
+│   ├── license_manager.py      # Hardware-bound cryptographic license manager
 │   ├── lrc_engine.py           # Word-level LRC/SRT parser & serializer
 │   ├── audio_engine.py         # Pygame mixer, pitch/tempo, waveform extraction
 │   ├── video_renderer.py       # 1080p MP4 rendering engine & audio muxer
@@ -179,6 +180,7 @@ Lylis-Karaoke-Studio/
 │
 ├── gui/                        # PyQt5 User Interface
 │   ├── main_window.py          # Master window, menus, toolbar & shortcuts
+│   ├── activation_dialog.py    # Modal startup hardware-locked activation dialog
 │   ├── license_dialog.py       # In-app Design & Software License dialog (F1)
 │   ├── preview_widget.py       # 60 FPS QPainter karaoke preview canvas
 │   ├── timeline_widget.py      # CapCut multi-track timeline sequencer
@@ -195,7 +197,10 @@ Lylis-Karaoke-Studio/
 │       ├── transitions_tab.py  # Scene transitions (Fade, Slide, Zoom)
 │       └── templates_tab.py    # 12-preset visual template gallery
 │
-└── tests/                      # Automated Test Suite (54 Unit & Integration Tests)
+├── tools/
+│   └── generate_license.py     # CLI key generator for author (gegacy)
+│
+└── tests/                      # Automated Test Suite (55 Unit & Integration Tests)
     ├── test_all_features.py
     ├── test_integration_regressions.py
     └── test_ai_analysis_regressions.py
@@ -210,7 +215,27 @@ Run the complete test suite with `pytest`:
 python -m pytest tests -v
 ```
 
-All 54 unit and regression tests run offline without external API dependencies.
+All 55 unit and regression tests run offline without external API dependencies.
+
+---
+
+## 🔒 Anti-Bypass Hardware License Protection
+
+Lylis Karaoke Studio implements a cryptographic, machine-bound activation protection system:
+- **Machine-Locked Cryptography**: The software reads the Windows `MachineGuid`, hardware MAC node, and CPU fingerprint to produce a 16-character Machine ID (e.g. `B3A3-BE39-B1C4-CEF5`).
+- **Cryptographic Signature**: Activation keys are signed with HMAC-SHA256 and verified dynamically. Keys cannot be forged or used on another computer.
+- **Local Storage Encryption**: Activated licenses are saved as encrypted binary blobs bound to the local machine (`license.dat`). Copying this file to another machine fails validation immediately.
+- **Multi-Point Enforcement**: Validated on startup before the main window loads, and re-verified inside video rendering/exporting pipelines.
+
+### Generating License Keys (For Author gegacy)
+To generate a license key for a customer:
+```bash
+python tools/generate_license.py --machine-id "XXXX-XXXX-XXXX-XXXX" --name "Customer Name" --tier "PRO"
+```
+To view local activation status on your own workstation:
+```bash
+python tools/generate_license.py --show-local
+```
 
 ---
 
@@ -221,4 +246,3 @@ All 54 unit and regression tests run offline without external API dependencies.
 - **Studio Creator License**: Grants personal and commercial rights to create, render, publish, and monetize all videos produced with Lylis Karaoke Studio with zero royalties.
 - **Design Protection**: The UI architecture, CapCut timeline sequencer, and 12 exclusive styling presets are protected design assets of Lylis Studio.
 - **In-App License Dialog**: Press <kbd>F1</kbd> or click **📜 Bản quyền** in the top navigation bar to inspect license status, design system specs, and open source attributions (PyQt5, FFmpeg, Pygame, Pillow, NumPy).
-

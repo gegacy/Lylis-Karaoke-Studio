@@ -49,3 +49,5 @@ crash.log
 .tmp/
 .autosave.lylis.json
 *.cache
+license.dat
+*.dat
